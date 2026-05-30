@@ -17,7 +17,7 @@ type Phase = "idle" | "countdown" | "watching" | "reward";
 
 const COUNTDOWN = 10;
 const AD_DURATION = 30;
-const REWARD = 1000;
+const REWARD = 100;
 
 const YA_BLOCK_TOP    = "R-A-325912287-1";
 const YA_BLOCK_MIDDLE = "R-A-325912287-2";
