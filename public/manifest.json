@@ -3,16 +3,32 @@
   "short_name": "Заработок",
   "description": "Смотри рекламу и получай вознаграждение на Фрикасса",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#081840",
   "theme_color": "#0d2550",
+  "lang": "ru",
+  "categories": ["finance", "lifestyle"],
+  "screenshots": [],
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "https://cdn.poehali.dev/projects/18a334c5-1480-4d1d-9432-4965a035ddb3/files/fa85fc1b-e0dd-4555-85a5-d4afc4a05e15.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://cdn.poehali.dev/projects/18a334c5-1480-4d1d-9432-4965a035ddb3/files/fa85fc1b-e0dd-4555-85a5-d4afc4a05e15.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://cdn.poehali.dev/projects/18a334c5-1480-4d1d-9432-4965a035ddb3/files/fa85fc1b-e0dd-4555-85a5-d4afc4a05e15.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ]
 }
