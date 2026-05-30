@@ -29,6 +29,42 @@ export default function App() {
     yoomoneyWallet: "",
     frikassaWallet: "",
   });
+  const [showInstall, setShowInstall] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<Event & { prompt: () => void } | null>(null);
+
+  useEffect(() => {
+    const alreadyDismissed = localStorage.getItem("install_dismissed");
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+    if (isStandalone || alreadyDismissed) return;
+
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    setIsIOS(ios);
+
+    if (ios) {
+      setTimeout(() => setShowInstall(true), 2000);
+    } else {
+      const handler = (e: Event) => {
+        e.preventDefault();
+        setDeferredPrompt(e as Event & { prompt: () => void });
+        setTimeout(() => setShowInstall(true), 2000);
+      };
+      window.addEventListener("beforeinstallprompt", handler);
+      return () => window.removeEventListener("beforeinstallprompt", handler);
+    }
+  }, []);
+
+  const handleInstall = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      setShowInstall(false);
+    }
+  };
+
+  const handleDismiss = () => {
+    setShowInstall(false);
+    localStorage.setItem("install_dismissed", "1");
+  };
 
   useEffect(() => {
     const deviceId = getDeviceId();
@@ -106,6 +142,62 @@ export default function App() {
           className="absolute bottom-20 left-0 w-48 h-48 rounded-full opacity-10 pointer-events-none"
           style={{ background: "radial-gradient(circle, #818cf8, transparent)", transform: "translate(-40%, 20%)" }}
         />
+
+        {/* Баннер «Установи на телефон» */}
+        {showInstall && (
+          <div
+            className="absolute bottom-20 left-3 right-3 z-50 rounded-2xl px-4 py-4 flex flex-col gap-3"
+            style={{
+              background: "linear-gradient(135deg, #1e3a8a, #1d4ed8)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+              border: "1px solid rgba(255,255,255,0.15)",
+            }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 rounded-xl p-2.5">
+                  <Icon name="Smartphone" size={22} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-white font-black text-sm">Установи на телефон!</p>
+                  <p className="text-blue-200 text-xs">Работает как настоящее приложение</p>
+                </div>
+              </div>
+              <button onClick={handleDismiss} className="text-white/40 hover:text-white/70 mt-0.5">
+                <Icon name="X" size={18} />
+              </button>
+            </div>
+
+            {isIOS ? (
+              <div className="bg-white/10 rounded-xl px-3 py-2.5 space-y-1.5">
+                <p className="text-white text-xs font-semibold">Как установить на iPhone:</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-300 text-xs">1.</span>
+                  <span className="text-blue-100 text-xs">Нажмите</span>
+                  <Icon name="Share" size={13} className="text-blue-300" />
+                  <span className="text-blue-100 text-xs">внизу браузера</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-300 text-xs">2.</span>
+                  <span className="text-blue-100 text-xs">Выберите «На экран Домой»</span>
+                  <Icon name="PlusSquare" size={13} className="text-blue-300" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-300 text-xs">3.</span>
+                  <span className="text-blue-100 text-xs">Нажмите «Добавить» — готово!</span>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={handleInstall}
+                className="w-full py-2.5 rounded-xl font-black text-sm text-blue-700 transition-all active:scale-95"
+                style={{ background: "#fff" }}
+              >
+                Установить приложение
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="flex-1 overflow-y-auto relative z-10">
           {tab === "home" && (
