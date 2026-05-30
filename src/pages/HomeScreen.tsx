@@ -216,12 +216,31 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
 
         {/* Status text */}
         <div className="text-center">
-          {phase === "idle" && (
-            <p className="text-blue-200 text-base font-medium">
-              Нажми на кружок, чтобы<br />
-              <span className="text-white font-bold">начать просмотр рекламы</span>
-            </p>
-          )}
+          {phase === "idle" && (() => {
+            const MIN_WITHDRAW = 1000;
+            const needed = Math.max(0, MIN_WITHDRAW - balance);
+            const viewsLeft = needed > 0 ? Math.ceil(needed / REWARD) : 0;
+            return (
+              <>
+                <p className="text-blue-200 text-base font-medium">
+                  Нажми на кружок, чтобы<br />
+                  <span className="text-white font-bold">начать просмотр рекламы</span>
+                </p>
+                <div className="mt-3 px-4 py-2 rounded-2xl" style={{ background: "rgba(255,255,255,0.07)" }}>
+                  {viewsLeft > 0 ? (
+                    <p className="text-blue-200 text-xs">
+                      До первого вывода: <span className="text-white font-bold">{viewsLeft} просмотров</span>
+                      <span className="text-blue-300"> (ещё 🪙 {needed.toLocaleString("ru-RU")})</span>
+                    </p>
+                  ) : (
+                    <p className="text-green-300 text-xs font-semibold">
+                      ✅ Можно выводить! Перейди во вкладку «Вывод»
+                    </p>
+                  )}
+                </div>
+              </>
+            );
+          })()}
           {phase === "countdown" && (
             <p className="text-blue-200 text-base font-medium">
               Реклама начнётся через<br />
