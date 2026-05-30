@@ -19,9 +19,9 @@ const COUNTDOWN = 10;
 const AD_DURATION = 30;
 const REWARD = 2;
 
-const YA_BLOCK_TOP    = "R-A-19360810-1";
-const YA_BLOCK_MIDDLE = "R-A-19360810-2";
-const YA_BLOCK_BOTTOM = "R-A-19360810-3";
+const YA_BLOCK_TOP    = "R-A-325912287-1";
+const YA_BLOCK_MIDDLE = "R-A-325912287-2";
+const YA_BLOCK_BOTTOM = "R-A-325912287-3";
 
 export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
   const [phase, setPhase] = useState<Phase>("idle");
