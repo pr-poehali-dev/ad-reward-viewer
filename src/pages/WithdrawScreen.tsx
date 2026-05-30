@@ -11,8 +11,8 @@ interface WithdrawScreenProps {
   onGoProfile: () => void;
 }
 
-const AMOUNTS = [1000, 5000, 10000, 20000, 50000, 100000, 200000];
-const COINS_TO_RUB = 0.001;
+const AMOUNTS = [12000, 24000, 60000, 120000, 240000, 600000, 1200000];
+const COINS_TO_RUB = 10 / 12000;
 
 type System = "frikassa";
 

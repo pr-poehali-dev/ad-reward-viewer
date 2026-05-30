@@ -217,7 +217,7 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
         {/* Status text */}
         <div className="text-center">
           {phase === "idle" && (() => {
-            const MIN_WITHDRAW = 1000;
+            const MIN_WITHDRAW = 12000;
             const needed = Math.max(0, MIN_WITHDRAW - balance);
             const viewsLeft = needed > 0 ? Math.ceil(needed / REWARD) : 0;
             return (
