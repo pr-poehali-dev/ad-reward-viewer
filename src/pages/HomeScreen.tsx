@@ -9,8 +9,13 @@ interface HomeScreenProps {
 type Phase = "idle" | "countdown" | "watching" | "reward";
 
 const COUNTDOWN = 10;
-const AD_DURATION = 5;
+const AD_DURATION = 30;
 const REWARD = 2;
+
+// После одобрения AdSense замените на свои реальные значения:
+// const ADSENSE_CLIENT = "ca-pub-XXXXXXXXXXXXXXXX";
+// const ADSENSE_SLOT   = "XXXXXXXXXX";
+const ADSENSE_READY = false;
 
 export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -200,11 +205,59 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
         </div>
       </div>
 
+      {/* Ad block */}
+      {phase === "watching" && (
+        <div
+          className="w-full rounded-2xl overflow-hidden"
+          style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+        >
+          {ADSENSE_READY ? (
+            /* Реальный блок AdSense — раскомментируйте после одобрения аккаунта */
+            <div className="w-full h-[100px] flex items-center justify-center bg-white/5">
+              {/* <ins
+                className="adsbygoogle"
+                style={{ display: "block", width: "100%", height: "100px" }}
+                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                data-ad-slot="XXXXXXXXXX"
+                data-ad-format="horizontal"
+              /> */}
+              <span className="text-white/30 text-xs">AdSense блок</span>
+            </div>
+          ) : (
+            /* Заглушка — убрать после подключения AdSense */
+            <div
+              className="w-full flex flex-col items-center justify-center gap-2 py-4 px-4"
+              style={{ background: "rgba(255,255,255,0.05)", minHeight: 90 }}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-white/50 text-[10px] uppercase tracking-widest font-bold">Реклама</span>
+              </div>
+              <div className="w-full rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.08)", height: 56 }}>
+                <div className="flex items-center h-full px-4 gap-3">
+                  <div className="w-10 h-10 rounded-lg shrink-0" style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }} />
+                  <div className="flex flex-col gap-1 flex-1 min-w-0">
+                    <div className="h-2.5 rounded-full w-3/4" style={{ background: "rgba(255,255,255,0.2)" }} />
+                    <div className="h-2 rounded-full w-1/2" style={{ background: "rgba(255,255,255,0.1)" }} />
+                  </div>
+                  <div className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold text-white" style={{ background: "#6366f1" }}>
+                    Узнать
+                  </div>
+                </div>
+              </div>
+              <p className="text-white/25 text-[10px]">Здесь будет реклама Google AdSense</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Bottom hint */}
-      <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-5 py-3">
-        <Icon name="Info" size={16} className="text-blue-200" />
-        <p className="text-blue-100 text-xs">Каждый просмотр = {REWARD} ₽ на баланс</p>
-      </div>
+      {phase !== "watching" && (
+        <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-5 py-3">
+          <Icon name="Info" size={16} className="text-blue-200" />
+          <p className="text-blue-100 text-xs">Каждый просмотр = {REWARD} ₽ на баланс</p>
+        </div>
+      )}
     </div>
   );
 }
