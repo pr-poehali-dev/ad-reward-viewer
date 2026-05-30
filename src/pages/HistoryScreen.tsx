@@ -54,14 +54,14 @@ export default function HistoryScreen({ history, balance }: HistoryScreenProps) 
             <Icon name="TrendingUp" size={16} className="text-green-400" />
             <span className="text-blue-200 text-xs">Заработано</span>
           </div>
-          <p className="text-white text-xl font-black">+{totalEarned} ₽</p>
+          <p className="text-white text-xl font-black">🪙 {totalEarned.toLocaleString("ru-RU")}</p>
         </div>
         <div className="bg-white/10 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-1">
             <Icon name="ArrowUpRight" size={16} className="text-orange-400" />
             <span className="text-blue-200 text-xs">Выведено</span>
           </div>
-          <p className="text-white text-xl font-black">-{totalWithdrawn} ₽</p>
+          <p className="text-white text-xl font-black">🪙 {totalWithdrawn.toLocaleString("ru-RU")}</p>
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default function HistoryScreen({ history, balance }: HistoryScreenProps) 
           </div>
           <span className="text-blue-100 font-semibold">Текущий баланс</span>
         </div>
-        <span className="text-white text-xl font-black">{balance} ₽</span>
+        <span className="text-white text-xl font-black">🪙 {balance.toLocaleString("ru-RU")}</span>
       </div>
 
       {/* List */}
@@ -118,7 +118,7 @@ export default function HistoryScreen({ history, balance }: HistoryScreenProps) 
                   item.type === "ad" ? "text-green-400" : "text-orange-400"
                 }`}
               >
-                {item.type === "ad" ? "+" : "-"}{item.amount} ₽
+                {item.type === "ad" ? "+" : "-"}🪙 {item.amount.toLocaleString("ru-RU")}
               </span>
             </div>
           ))

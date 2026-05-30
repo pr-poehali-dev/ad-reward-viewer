@@ -43,7 +43,8 @@ export default function ProfileScreen({ profile, onSave, balance }: ProfileScree
       >
         <div>
           <p className="text-blue-100 text-xs font-medium">Текущий баланс</p>
-          <p className="text-white text-3xl font-black">{balance} ₽</p>
+          <p className="text-white text-3xl font-black">🪙 {balance.toLocaleString("ru-RU")}</p>
+          <p className="text-blue-200 text-xs mt-0.5">≈ {(balance * 0.0005).toFixed(2)} ₽</p>
         </div>
         <div className="bg-white/20 rounded-2xl p-3">
           <Icon name="Wallet" size={28} className="text-white" />

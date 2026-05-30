@@ -17,7 +17,7 @@ type Phase = "idle" | "countdown" | "watching" | "reward";
 
 const COUNTDOWN = 10;
 const AD_DURATION = 30;
-const REWARD = 2;
+const REWARD = 1000;
 
 const YA_BLOCK_TOP    = "R-A-325912287-1";
 const YA_BLOCK_MIDDLE = "R-A-325912287-2";
@@ -120,11 +120,11 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
       <div className="w-full flex items-center justify-between px-2">
         <div>
           <p className="text-blue-200 text-xs font-medium uppercase tracking-widest">Баланс</p>
-          <p className="text-white text-2xl font-black">{balance} ₽</p>
+          <p className="text-white text-2xl font-black">🪙 {balance.toLocaleString("ru-RU")}</p>
         </div>
         <div className="bg-white/10 rounded-2xl px-4 py-2 flex items-center gap-2">
           <Icon name="Zap" size={16} className="text-yellow-300" />
-          <span className="text-white text-sm font-semibold">+{REWARD} ₽ / реклама</span>
+          <span className="text-white text-sm font-semibold">+{REWARD.toLocaleString("ru-RU")} 🪙 / реклама</span>
         </div>
       </div>
 
@@ -207,7 +207,7 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
             {phase === "reward" && (
               <>
                 <span className="text-white text-3xl mb-1">🎉</span>
-                <span className="text-white text-xl font-black">+{REWARD} ₽</span>
+                <span className="text-white text-xl font-black">+{REWARD.toLocaleString("ru-RU")} 🪙</span>
                 <span className="text-yellow-100 text-xs font-medium">начислено!</span>
               </>
             )}

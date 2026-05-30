@@ -11,7 +11,8 @@ interface WithdrawScreenProps {
   onGoProfile: () => void;
 }
 
-const AMOUNTS = [10, 25, 50, 75, 100, 150, 200];
+const AMOUNTS = [20000, 50000, 100000, 150000, 200000, 300000, 400000];
+const COINS_TO_RUB = 0.0005;
 
 type System = "frikassa";
 
@@ -80,7 +81,7 @@ export default function WithdrawScreen({
     <div className="flex flex-col h-full px-6 py-10 gap-5">
       <div>
         <h1 className="text-white text-2xl font-black mb-1">Вывод средств</h1>
-        <p className="text-blue-200 text-sm">Доступно: <span className="text-white font-bold">{balance} ₽</span></p>
+        <p className="text-blue-200 text-sm">Доступно: <span className="text-white font-bold">🪙 {balance.toLocaleString("ru-RU")}</span> <span className="text-blue-300 text-xs">≈ {(balance * COINS_TO_RUB).toFixed(2)} ₽</span></p>
       </div>
 
       {/* Статус */}
@@ -155,11 +156,14 @@ export default function WithdrawScreen({
                 border: isSelected ? "none" : "1px solid rgba(255,255,255,0.08)",
               }}
             >
-              <span className={`text-lg font-black ${isSelected ? "text-blue-700" : isAffordable ? "text-white" : "text-white/30"}`}>
-                {amount}₽
+              <span className={`text-sm font-black ${isSelected ? "text-blue-700" : isAffordable ? "text-white" : "text-white/30"}`}>
+                🪙 {amount.toLocaleString("ru-RU")}
+              </span>
+              <span className={`text-[11px] font-semibold ${isSelected ? "text-blue-500" : isAffordable ? "text-green-400" : "text-white/25"}`}>
+                {(amount * COINS_TO_RUB).toFixed(2)} ₽
               </span>
               {!isAffordable && (
-                <span className="text-[10px] text-white/25">−{amount - balance}₽</span>
+                <span className="text-[10px] text-white/25">−{(amount - balance).toLocaleString("ru-RU")}</span>
               )}
             </button>
           );
@@ -182,7 +186,7 @@ export default function WithdrawScreen({
             <span>Отправка...</span>
           </>
         ) : selected ? (
-          `Вывести ${selected} ₽ на Фрикасса`
+          `Вывести 🪙 ${selected.toLocaleString("ru-RU")} (${(selected * COINS_TO_RUB).toFixed(2)} ₽)`
         ) : (
           "Выберите сумму"
         )}
