@@ -1,6 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import Icon from "@/components/ui/icon";
 
+declare global {
+  interface Window {
+    yaContextCb: (() => void)[];
+    Ya: { Context: { AdvManager: { render: (opts: object) => void } } };
+  }
+}
+
 interface HomeScreenProps {
   balance: number;
   onAdWatched: (reward: number) => void;
@@ -12,10 +19,7 @@ const COUNTDOWN = 10;
 const AD_DURATION = 30;
 const REWARD = 2;
 
-// После одобрения AdSense замените на свои реальные значения:
-// const ADSENSE_CLIENT = "ca-pub-XXXXXXXXXXXXXXXX";
-// const ADSENSE_SLOT   = "XXXXXXXXXX";
-const ADSENSE_READY = false;
+const YA_BLOCK_ID = "R-A-19360810-1";
 
 export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -32,6 +36,17 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
       : phase === "watching"
         ? circumference
         : 0;
+
+  const renderYaAd = () => {
+    window.yaContextCb = window.yaContextCb || [];
+    window.yaContextCb.push(() => {
+      window.Ya.Context.AdvManager.render({
+        blockId: YA_BLOCK_ID,
+        renderTo: "ya-ad-block",
+        async: true,
+      });
+    });
+  };
 
   const startCountdown = () => {
     if (phase !== "idle") return;
@@ -54,6 +69,7 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
         });
       }, 1000);
     } else if (phase === "watching") {
+      renderYaAd();
       intervalRef.current = setInterval(() => {
         setAdCount((prev) => {
           if (prev <= 1) {
@@ -205,49 +221,17 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
         </div>
       </div>
 
-      {/* Ad block */}
+      {/* Яндекс РСЯ блок */}
       {phase === "watching" && (
         <div
           className="w-full rounded-2xl overflow-hidden"
-          style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", minHeight: 90 }}
         >
-          {ADSENSE_READY ? (
-            /* Реальный блок AdSense — раскомментируйте после одобрения аккаунта */
-            <div className="w-full h-[100px] flex items-center justify-center bg-white/5">
-              {/* <ins
-                className="adsbygoogle"
-                style={{ display: "block", width: "100%", height: "100px" }}
-                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                data-ad-slot="XXXXXXXXXX"
-                data-ad-format="horizontal"
-              /> */}
-              <span className="text-white/30 text-xs">AdSense блок</span>
-            </div>
-          ) : (
-            /* Заглушка — убрать после подключения AdSense */
-            <div
-              className="w-full flex flex-col items-center justify-center gap-2 py-4 px-4"
-              style={{ background: "rgba(255,255,255,0.05)", minHeight: 90 }}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-white/50 text-[10px] uppercase tracking-widest font-bold">Реклама</span>
-              </div>
-              <div className="w-full rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.08)", height: 56 }}>
-                <div className="flex items-center h-full px-4 gap-3">
-                  <div className="w-10 h-10 rounded-lg shrink-0" style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)" }} />
-                  <div className="flex flex-col gap-1 flex-1 min-w-0">
-                    <div className="h-2.5 rounded-full w-3/4" style={{ background: "rgba(255,255,255,0.2)" }} />
-                    <div className="h-2 rounded-full w-1/2" style={{ background: "rgba(255,255,255,0.1)" }} />
-                  </div>
-                  <div className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold text-white" style={{ background: "#6366f1" }}>
-                    Узнать
-                  </div>
-                </div>
-              </div>
-              <p className="text-white/25 text-[10px]">Здесь будет реклама Google AdSense</p>
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 px-3 pt-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
+            <span className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Реклама</span>
+          </div>
+          <div id="ya-ad-block" className="w-full" />
         </div>
       )}
 
