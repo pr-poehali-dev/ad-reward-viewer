@@ -19,7 +19,9 @@ const COUNTDOWN = 10;
 const AD_DURATION = 30;
 const REWARD = 2;
 
-const YA_BLOCK_ID = "R-A-19360810-1";
+const YA_BLOCK_TOP    = "R-A-19360810-1";
+const YA_BLOCK_MIDDLE = "R-A-19360810-2";
+const YA_BLOCK_BOTTOM = "R-A-19360810-3";
 
 export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -39,11 +41,13 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
 
   const renderYaAd = () => {
     window.yaContextCb = window.yaContextCb || [];
-    window.yaContextCb.push(() => {
-      window.Ya.Context.AdvManager.render({
-        blockId: YA_BLOCK_ID,
-        renderTo: "ya-ad-block",
-        async: true,
+    [
+      { blockId: YA_BLOCK_TOP,    renderTo: "ya-ad-top" },
+      { blockId: YA_BLOCK_MIDDLE, renderTo: "ya-ad-middle" },
+      { blockId: YA_BLOCK_BOTTOM, renderTo: "ya-ad-bottom" },
+    ].forEach(({ blockId, renderTo }) => {
+      window.yaContextCb.push(() => {
+        window.Ya.Context.AdvManager.render({ blockId, renderTo, async: true });
       });
     });
   };
@@ -93,10 +97,27 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
     };
   }, [phase]);
 
+  const AdBanner = ({ id }: { id: string }) => (
+    <div
+      className="w-full rounded-2xl overflow-hidden"
+      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", minHeight: 80 }}
+    >
+      <div className="flex items-center gap-1.5 px-3 pt-1.5">
+        <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
+        <span className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Реклама</span>
+      </div>
+      <div id={id} className="w-full" />
+    </div>
+  );
+
   return (
-    <div className="flex flex-col items-center justify-between h-full px-6 py-10 relative overflow-hidden">
+    <div className="flex flex-col items-center justify-between h-full px-4 py-6 gap-3 relative overflow-hidden">
+
+      {/* Верхний баннер — всегда виден */}
+      <AdBanner id="ya-ad-top" />
+
       {/* Header */}
-      <div className="w-full flex items-center justify-between">
+      <div className="w-full flex items-center justify-between px-2">
         <div>
           <p className="text-blue-200 text-xs font-medium uppercase tracking-widest">Баланс</p>
           <p className="text-white text-2xl font-black">{balance} ₽</p>
@@ -221,27 +242,11 @@ export default function HomeScreen({ balance, onAdWatched }: HomeScreenProps) {
         </div>
       </div>
 
-      {/* Яндекс РСЯ блок */}
-      {phase === "watching" && (
-        <div
-          className="w-full rounded-2xl overflow-hidden"
-          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", minHeight: 90 }}
-        >
-          <div className="flex items-center gap-1.5 px-3 pt-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
-            <span className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Реклама</span>
-          </div>
-          <div id="ya-ad-block" className="w-full" />
-        </div>
-      )}
+      {/* Средний баннер — только во время просмотра */}
+      {phase === "watching" && <AdBanner id="ya-ad-middle" />}
 
-      {/* Bottom hint */}
-      {phase !== "watching" && (
-        <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-5 py-3">
-          <Icon name="Info" size={16} className="text-blue-200" />
-          <p className="text-blue-100 text-xs">Каждый просмотр = {REWARD} ₽ на баланс</p>
-        </div>
-      )}
+      {/* Нижний баннер — всегда виден */}
+      <AdBanner id="ya-ad-bottom" />
     </div>
   );
 }
