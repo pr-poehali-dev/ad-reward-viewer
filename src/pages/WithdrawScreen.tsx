@@ -6,7 +6,6 @@ const WITHDRAW_URL = "https://functions.poehali.dev/9040abe8-ed07-4ea4-8bba-a16b
 interface WithdrawScreenProps {
   balance: number;
   deviceId: string;
-  yoomoneyWallet: string;
   frikassaWallet: string;
   onWithdrawn: (amount: number) => void;
   onGoProfile: () => void;
@@ -14,28 +13,26 @@ interface WithdrawScreenProps {
 
 const AMOUNTS = [10, 25, 50, 75, 100, 150, 200];
 
-type System = "yoomoney" | "frikassa";
+type System = "frikassa";
 
-const SYSTEMS: { id: System; label: string; icon: string; color: string; field: "yoomoneyWallet" | "frikassaWallet" }[] = [
-  { id: "yoomoney", label: "ЮМани", icon: "Wallet", color: "#8B5CF6", field: "yoomoneyWallet" },
+const SYSTEMS: { id: System; label: string; icon: string; color: string; field: "frikassaWallet" }[] = [
   { id: "frikassa", label: "Фрикасса", icon: "Coins", color: "#f59e0b", field: "frikassaWallet" },
 ];
 
 export default function WithdrawScreen({
   balance,
   deviceId,
-  yoomoneyWallet,
   frikassaWallet,
   onWithdrawn,
   onGoProfile,
 }: WithdrawScreenProps) {
   const [selected, setSelected] = useState<number | null>(null);
-  const [system, setSystem] = useState<System>("yoomoney");
+  const [system, setSystem] = useState<System>("frikassa");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error" | "no_wallet">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const wallets = { yoomoney: yoomoneyWallet, frikassa: frikassaWallet };
+  const wallets = { frikassa: frikassaWallet };
   const currentWallet = wallets[system];
   const hasWallet = !!currentWallet;
 
@@ -185,7 +182,7 @@ export default function WithdrawScreen({
             <span>Отправка...</span>
           </>
         ) : selected ? (
-          `Вывести ${selected} ₽ на ${system === "yoomoney" ? "ЮМани" : "Фрикасса"}`
+          `Вывести ${selected} ₽ на Фрикасса`
         ) : (
           "Выберите сумму"
         )}

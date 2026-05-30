@@ -115,7 +115,6 @@ export default function App() {
             <WithdrawScreen
               balance={balance}
               deviceId={profile.deviceId}
-              yoomoneyWallet={profile.yoomoneyWallet}
               frikassaWallet={profile.frikassaWallet}
               onWithdrawn={handleWithdrawn}
               onGoProfile={() => setTab("profile")}

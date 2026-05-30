@@ -14,24 +14,20 @@ interface ProfileScreenProps {
 }
 
 export default function ProfileScreen({ profile, onSave, balance }: ProfileScreenProps) {
-  const [yoomoney, setYoomoney] = useState(profile.yoomoneyWallet);
   const [frikassa, setFrikassa] = useState(profile.frikassaWallet);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setYoomoney(profile.yoomoneyWallet);
     setFrikassa(profile.frikassaWallet);
   }, [profile]);
 
   const handleSave = () => {
-    onSave({ ...profile, yoomoneyWallet: yoomoney.trim(), frikassaWallet: frikassa.trim() });
+    onSave({ ...profile, frikassaWallet: frikassa.trim() });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const hasChanges =
-    yoomoney.trim() !== profile.yoomoneyWallet ||
-    frikassa.trim() !== profile.frikassaWallet;
+  const hasChanges = frikassa.trim() !== profile.frikassaWallet;
 
   return (
     <div className="flex flex-col h-full px-6 py-10 gap-6">
@@ -60,34 +56,6 @@ export default function ProfileScreen({ profile, onSave, balance }: ProfileScree
           <span className="text-green-300 font-semibold text-sm">Реквизиты сохранены!</span>
         </div>
       )}
-
-      {/* YooMoney */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div
-            className="rounded-xl p-1.5"
-            style={{ background: "#8B5CF6" }}
-          >
-            <Icon name="Wallet" size={14} className="text-white" />
-          </div>
-          <span className="text-white font-bold text-sm">ЮМани (YooMoney)</span>
-        </div>
-        <input
-          type="text"
-          value={yoomoney}
-          onChange={(e) => setYoomoney(e.target.value)}
-          placeholder="Номер кошелька 410011XXXXXXXXXX"
-          className="w-full rounded-2xl px-4 py-3 text-white text-sm outline-none transition-all"
-          style={{
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            fontFamily: "'Montserrat', sans-serif",
-          }}
-          onFocus={(e) => (e.target.style.borderColor = "rgba(139,92,246,0.6)")}
-          onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.12)")}
-        />
-        <p className="text-blue-300 text-xs pl-1">Формат: 410011XXXXXXXXXX (16 цифр)</p>
-      </div>
 
       {/* Frikassa */}
       <div className="space-y-2">
