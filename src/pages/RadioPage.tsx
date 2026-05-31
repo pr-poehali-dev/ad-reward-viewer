@@ -2,15 +2,28 @@ import { useState, useMemo } from "react";
 import Icon from "@/components/ui/icon";
 import StationCard from "@/components/StationCard";
 import RadioPlayer from "@/components/RadioPlayer";
-import { stations, GENRES, Station } from "@/data/stations";
+import AddStationModal from "@/components/AddStationModal";
+import { stations as defaultStations, GENRES, Station } from "@/data/stations";
 
 type TabType = "catalog" | "favorites";
+
+let nextCustomId = 1000;
+
+function loadCustomStations(): Station[] {
+  try {
+    return JSON.parse(localStorage.getItem("radio_custom_stations") || "[]");
+  } catch {
+    return [];
+  }
+}
 
 export default function RadioPage() {
   const [activeTab, setActiveTab] = useState<TabType>("catalog");
   const [selectedGenre, setSelectedGenre] = useState("Все");
   const [search, setSearch] = useState("");
   const [currentStation, setCurrentStation] = useState<Station | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [customStations, setCustomStations] = useState<Station[]>(loadCustomStations);
   const [favorites, setFavorites] = useState<number[]>(() => {
     try {
       return JSON.parse(localStorage.getItem("radio_favorites") || "[]");
@@ -18,6 +31,8 @@ export default function RadioPage() {
       return [];
     }
   });
+
+  const allStations = useMemo(() => [...defaultStations, ...customStations], [customStations]);
 
   const toggleFavorite = (id: number) => {
     setFavorites((prev) => {
@@ -27,12 +42,23 @@ export default function RadioPage() {
     });
   };
 
+  const handleAddStation = (data: { name: string; genre: string; description: string; streamUrl: string; logo: string }) => {
+    const newStation: Station = {
+      id: nextCustomId++,
+      ...data,
+      country: "Пользователь",
+    };
+    const updated = [...customStations, newStation];
+    setCustomStations(updated);
+    localStorage.setItem("radio_custom_stations", JSON.stringify(updated));
+  };
+
   const filtered = useMemo(() => {
-    let list = activeTab === "favorites" ? stations.filter((s) => favorites.includes(s.id)) : stations;
+    let list = activeTab === "favorites" ? allStations.filter((s) => favorites.includes(s.id)) : allStations;
     if (selectedGenre !== "Все") list = list.filter((s) => s.genre === selectedGenre);
     if (search.trim()) list = list.filter((s) => s.name.toLowerCase().includes(search.toLowerCase()) || s.genre.toLowerCase().includes(search.toLowerCase()));
     return list;
-  }, [activeTab, selectedGenre, search, favorites]);
+  }, [activeTab, selectedGenre, search, favorites, allStations]);
 
   return (
     <div
@@ -42,9 +68,7 @@ export default function RadioPage() {
       {/* Hero */}
       <div
         className="relative overflow-hidden px-5 pt-12 pb-8"
-        style={{
-          background: "linear-gradient(135deg, #1a0a3e 0%, #0d0d1a 60%)",
-        }}
+        style={{ background: "linear-gradient(135deg, #1a0a3e 0%, #0d0d1a 60%)" }}
       >
         <div
           className="absolute top-0 right-0 w-72 h-72 rounded-full opacity-20 pointer-events-none"
@@ -55,23 +79,38 @@ export default function RadioPage() {
           style={{ background: "radial-gradient(circle, #06b6d4, transparent)", transform: "translate(-30%, 30%)" }}
         />
 
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-1">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)" }}
-            >
-              <Icon name="Radio" size={16} className="text-white" />
+        <div className="relative z-10 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)" }}
+              >
+                <Icon name="Radio" size={16} className="text-white" />
+              </div>
+              <span className="text-purple-300 text-sm font-medium">Онлайн Радио</span>
             </div>
-            <span className="text-purple-300 text-sm font-medium">Онлайн Радио</span>
+            <h1 className="text-3xl font-black text-white mt-2 leading-tight">
+              Слушай музыку<br />
+              <span style={{ background: "linear-gradient(135deg, #a78bfa, #22d3ee)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                прямо сейчас
+              </span>
+            </h1>
+            <p className="text-gray-400 text-sm mt-2">{allStations.length} станций из разных стран</p>
           </div>
-          <h1 className="text-3xl font-black text-white mt-2 leading-tight">
-            Слушай музыку<br />
-            <span style={{ background: "linear-gradient(135deg, #a78bfa, #22d3ee)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              прямо сейчас
-            </span>
-          </h1>
-          <p className="text-gray-400 text-sm mt-2">{stations.length} станций из разных стран</p>
+
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95 mt-2"
+            style={{
+              background: "rgba(139,92,246,0.2)",
+              border: "1px solid rgba(139,92,246,0.4)",
+              color: "#c4b5fd",
+            }}
+          >
+            <Icon name="Plus" size={14} />
+            Добавить
+          </button>
         </div>
 
         {/* Hero image */}
@@ -124,7 +163,7 @@ export default function RadioPage() {
             }}
           >
             <Icon name={t === "catalog" ? "LayoutGrid" : "Heart"} size={14} />
-            {t === "catalog" ? "Каталог" : `Избранное ${favorites.length > 0 ? `(${favorites.length})` : ""}`}
+            {t === "catalog" ? "Каталог" : `Избранное${favorites.length > 0 ? ` (${favorites.length})` : ""}`}
           </button>
         ))}
       </div>
@@ -156,9 +195,18 @@ export default function RadioPage() {
         {filtered.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-5xl mb-4">{activeTab === "favorites" ? "💜" : "🔍"}</div>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-sm mb-4">
               {activeTab === "favorites" ? "Нет избранных станций" : "Ничего не найдено"}
             </p>
+            {activeTab === "catalog" && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
+                style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.4)", color: "#c4b5fd" }}
+              >
+                + Добавить станцию
+              </button>
+            )}
           </div>
         ) : (
           filtered.map((station) => (
@@ -179,6 +227,14 @@ export default function RadioPage() {
         station={currentStation}
         onClose={() => setCurrentStation(null)}
       />
+
+      {/* Add Station Modal */}
+      {showAddModal && (
+        <AddStationModal
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddStation}
+        />
+      )}
     </div>
   );
 }
