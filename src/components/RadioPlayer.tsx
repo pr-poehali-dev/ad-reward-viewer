@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Icon from "@/components/ui/icon";
-import { Station } from "@/data/stations";
+import { Station } from "@/services/radioBrowser";
 
 interface RadioPlayerProps {
   station: Station | null;

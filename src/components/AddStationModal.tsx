@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
-import { GENRES } from "@/data/stations";
+import { GENRES } from "@/services/radioBrowser";
 
 interface AddStationModalProps {
   onClose: () => void;

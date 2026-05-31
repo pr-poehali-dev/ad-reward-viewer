@@ -1,12 +1,12 @@
 import Icon from "@/components/ui/icon";
-import { Station } from "@/data/stations";
+import { Station } from "@/services/radioBrowser";
 
 interface StationCardProps {
   station: Station;
   isPlaying: boolean;
   isFavorite: boolean;
   onPlay: (station: Station) => void;
-  onFavorite: (id: number) => void;
+  onFavorite: () => void;
 }
 
 export default function StationCard({ station, isPlaying, isFavorite, onPlay, onFavorite }: StationCardProps) {
@@ -25,10 +25,12 @@ export default function StationCard({ station, isPlaying, isFavorite, onPlay, on
       onClick={() => onPlay(station)}
     >
       <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 relative"
+        className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 relative overflow-hidden"
         style={{ background: "rgba(139, 92, 246, 0.15)" }}
       >
-        {station.logo}
+        {station.favicon ? (
+          <img src={station.favicon} alt="" className="w-8 h-8 object-contain rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+        ) : station.logo}
         {isPlaying && (
           <div
             className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center"
@@ -62,7 +64,7 @@ export default function StationCard({ station, isPlaying, isFavorite, onPlay, on
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onFavorite(station.id);
+            onFavorite();
           }}
           className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
           style={{ color: isFavorite ? "#f472b6" : "rgba(255,255,255,0.3)" }}
