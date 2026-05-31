@@ -1,5 +1,5 @@
-import SMMApp from "@/pages/smm/SMMApp";
+import AdApp from "@/pages/AdApp";
 
 export default function App() {
-  return <SMMApp />;
+  return <AdApp />;
 }
