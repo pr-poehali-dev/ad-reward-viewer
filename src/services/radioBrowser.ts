@@ -107,4 +107,28 @@ export async function searchStations(query: string, limit = 30): Promise<Station
   return data.filter((s) => s.lastcheckok === 1 && s.url_resolved).map(mapStation);
 }
 
+export async function fetchByCountry(countrycode: string, genre: string, limit = 40): Promise<Station[]> {
+  const tag = genre !== "Все" ? (GENRE_MAP[genre]?.[0] || "") : "";
+  const tagParam = tag ? `&tag=${encodeURIComponent(tag)}` : "";
+  const res = await fetch(
+    `${API_BASE}/stations/search?countrycode=${encodeURIComponent(countrycode)}${tagParam}&limit=${limit}&hidebroken=true&order=votes&reverse=true`,
+    { headers: { "User-Agent": "RadioCatalog/1.0" } }
+  );
+  const data: RadioStation[] = await res.json();
+  return data.filter((s) => s.lastcheckok === 1 && s.url_resolved).map(mapStation);
+}
+
 export const GENRES = ["Все", "Поп", "Рок", "Джаз", "Электронная", "Классика", "Новости", "Хип-хоп", "Регги", "Кантри"];
+
+export const COUNTRIES: { label: string; code: string; flag: string }[] = [
+  { label: "Все страны", code: "", flag: "🌍" },
+  { label: "Россия", code: "RU", flag: "🇷🇺" },
+  { label: "США", code: "US", flag: "🇺🇸" },
+  { label: "Великобритания", code: "GB", flag: "🇬🇧" },
+  { label: "Германия", code: "DE", flag: "🇩🇪" },
+  { label: "Франция", code: "FR", flag: "🇫🇷" },
+  { label: "Испания", code: "ES", flag: "🇪🇸" },
+  { label: "Италия", code: "IT", flag: "🇮🇹" },
+  { label: "Япония", code: "JP", flag: "🇯🇵" },
+  { label: "Бразилия", code: "BR", flag: "🇧🇷" },
+];

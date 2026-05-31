@@ -3,7 +3,7 @@ import Icon from "@/components/ui/icon";
 import StationCard from "@/components/StationCard";
 import RadioPlayer from "@/components/RadioPlayer";
 import AddStationModal from "@/components/AddStationModal";
-import { fetchByGenre, searchStations, GENRES, Station } from "@/services/radioBrowser";
+import { fetchByGenre, fetchByCountry, searchStations, GENRES, COUNTRIES, Station } from "@/services/radioBrowser";
 
 type TabType = "catalog" | "favorites";
 
@@ -26,17 +26,20 @@ export default function RadioPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentStation, setCurrentStation] = useState<Station | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [favorites, setFavorites] = useState<string[]>(loadFavorites);
   const [favoriteStations, setFavoriteStations] = useState<Station[]>(loadFavoriteStations);
   const [customStations] = useState<Station[]>(loadCustomStations);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const load = useCallback(async (genre: string, query: string) => {
+  const load = useCallback(async (genre: string, query: string, countryCode: string) => {
     setIsLoading(true);
     try {
       let result: Station[];
       if (query.trim()) {
         result = await searchStations(query);
+      } else if (countryCode) {
+        result = await fetchByCountry(countryCode, genre);
       } else {
         result = await fetchByGenre(genre);
       }
@@ -49,8 +52,8 @@ export default function RadioPage() {
   }, [customStations]);
 
   useEffect(() => {
-    load(selectedGenre, search);
-  }, [selectedGenre, search, load]);
+    load(selectedGenre, search, selectedCountry);
+  }, [selectedGenre, search, selectedCountry, load]);
 
   const handleSearchInput = (val: string) => {
     setSearchInput(val);
@@ -151,6 +154,32 @@ export default function RadioPage() {
           )}
         </div>
       </div>
+
+      {/* Country filter */}
+      {activeTab === "catalog" && !search && (
+        <div className="px-5 mt-3">
+          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+            {COUNTRIES.map((c) => {
+              const isActive = selectedCountry === c.code;
+              return (
+                <button
+                  key={c.code}
+                  onClick={() => setSelectedCountry(c.code)}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
+                  style={{
+                    background: isActive ? "rgba(6,182,212,0.25)" : "rgba(255,255,255,0.05)",
+                    border: isActive ? "1px solid rgba(6,182,212,0.6)" : "1px solid rgba(255,255,255,0.07)",
+                    color: isActive ? "#67e8f9" : "#6b7280",
+                  }}
+                >
+                  <span>{c.flag}</span>
+                  <span>{c.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="px-5 mt-4 flex gap-2">
