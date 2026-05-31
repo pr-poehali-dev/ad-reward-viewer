@@ -1,4 +1,30 @@
-const API_BASE = "https://de1.api.radio-browser.info/json";
+const FALLBACK_SERVERS = [
+  "https://de1.api.radio-browser.info/json",
+  "https://nl1.api.radio-browser.info/json",
+  "https://at1.api.radio-browser.info/json",
+  "https://fi1.api.radio-browser.info/json",
+];
+
+let API_BASE = FALLBACK_SERVERS[0];
+
+async function getWorkingServer(): Promise<string> {
+  for (const server of FALLBACK_SERVERS) {
+    try {
+      const res = await fetch(`${server}/stats`, { signal: AbortSignal.timeout(3000) });
+      if (res.ok) return server;
+    } catch {
+      continue;
+    }
+  }
+  return FALLBACK_SERVERS[0];
+}
+
+let serverInitialized = false;
+async function ensureServer() {
+  if (serverInitialized) return;
+  serverInitialized = true;
+  API_BASE = await getWorkingServer();
+}
 
 export interface RadioStation {
   stationuuid: string;
@@ -76,12 +102,17 @@ function mapStation(raw: RadioStation): Station {
   };
 }
 
+async function apiFetch(path: string): Promise<RadioStation[]> {
+  await ensureServer();
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { "User-Agent": "RadioCatalog/1.0" },
+    signal: AbortSignal.timeout(8000),
+  });
+  return res.json();
+}
+
 export async function fetchTopStations(limit = 40): Promise<Station[]> {
-  const res = await fetch(
-    `${API_BASE}/stations/search?limit=${limit}&hidebroken=true&order=votes&reverse=true&has_geo_info=false`,
-    { headers: { "User-Agent": "RadioCatalog/1.0" } }
-  );
-  const data: RadioStation[] = await res.json();
+  const data = await apiFetch(`/stations/search?limit=${limit}&hidebroken=true&order=votes&reverse=true`);
   return data.filter((s) => s.lastcheckok === 1 && s.url_resolved).map(mapStation);
 }
 
@@ -90,31 +121,19 @@ export async function fetchByGenre(genre: string, limit = 40): Promise<Station[]
   const keywords = GENRE_MAP[genre] || [];
   if (!keywords.length) return [];
   const tag = keywords[0];
-  const res = await fetch(
-    `${API_BASE}/stations/bytag/${encodeURIComponent(tag)}?limit=${limit}&hidebroken=true&order=votes&reverse=true`,
-    { headers: { "User-Agent": "RadioCatalog/1.0" } }
-  );
-  const data: RadioStation[] = await res.json();
+  const data = await apiFetch(`/stations/bytag/${encodeURIComponent(tag)}?limit=${limit}&hidebroken=true&order=votes&reverse=true`);
   return data.filter((s) => s.lastcheckok === 1 && s.url_resolved).map(mapStation);
 }
 
 export async function searchStations(query: string, limit = 30): Promise<Station[]> {
-  const res = await fetch(
-    `${API_BASE}/stations/search?name=${encodeURIComponent(query)}&limit=${limit}&hidebroken=true&order=votes&reverse=true`,
-    { headers: { "User-Agent": "RadioCatalog/1.0" } }
-  );
-  const data: RadioStation[] = await res.json();
+  const data = await apiFetch(`/stations/search?name=${encodeURIComponent(query)}&limit=${limit}&hidebroken=true&order=votes&reverse=true`);
   return data.filter((s) => s.lastcheckok === 1 && s.url_resolved).map(mapStation);
 }
 
 export async function fetchByCountry(countrycode: string, genre: string, limit = 40): Promise<Station[]> {
   const tag = genre !== "Все" ? (GENRE_MAP[genre]?.[0] || "") : "";
   const tagParam = tag ? `&tag=${encodeURIComponent(tag)}` : "";
-  const res = await fetch(
-    `${API_BASE}/stations/search?countrycode=${encodeURIComponent(countrycode)}${tagParam}&limit=${limit}&hidebroken=true&order=votes&reverse=true`,
-    { headers: { "User-Agent": "RadioCatalog/1.0" } }
-  );
-  const data: RadioStation[] = await res.json();
+  const data = await apiFetch(`/stations/search?countrycode=${encodeURIComponent(countrycode)}${tagParam}&limit=${limit}&hidebroken=true&order=votes&reverse=true`);
   return data.filter((s) => s.lastcheckok === 1 && s.url_resolved).map(mapStation);
 }
 
