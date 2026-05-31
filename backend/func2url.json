@@ -1,4 +1,7 @@
 {
+  "smm-auth": "https://functions.poehali.dev/30e067c6-cd60-41f1-a877-385c379d50e6",
+  "smm-api": "https://functions.poehali.dev/82e30c9a-1ba9-4eea-9a4f-94178da40ea8",
+  "smm-tasks": "https://functions.poehali.dev/aca03559-f0f2-4eb8-9075-b989dc913835",
   "withdraw": "https://functions.poehali.dev/9040abe8-ed07-4ea4-8bba-a16baae0c220",
   "user-sync": "https://functions.poehali.dev/15c13869-929f-4bc3-9a17-40ae69ec35b0"
 }

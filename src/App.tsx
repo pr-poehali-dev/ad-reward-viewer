@@ -1,5 +1,5 @@
-import RadioPage from "@/pages/RadioPage";
+import SMMApp from "@/pages/smm/SMMApp";
 
 export default function App() {
-  return <RadioPage />;
+  return <SMMApp />;
 }
