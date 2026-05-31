@@ -11,6 +11,7 @@ export default function RadioPlayer({ station, onClose }: RadioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -19,24 +20,43 @@ export default function RadioPlayer({ station, onClose }: RadioPlayerProps) {
       audioRef.current.pause();
       audioRef.current.src = "";
     }
-    const audio = new Audio(station.streamUrl);
-    audio.volume = volume;
-    audioRef.current = audio;
+    setHasError(false);
     setIsLoading(true);
     setIsPlaying(false);
 
-    audio.addEventListener("canplay", () => {
+    const audio = new Audio();
+    audio.crossOrigin = "anonymous";
+    audio.volume = volume;
+    audioRef.current = audio;
+
+    const onCanPlay = () => {
       setIsLoading(false);
-      audio.play();
-      setIsPlaying(true);
-    });
-    audio.addEventListener("error", () => {
+      audio.play().then(() => setIsPlaying(true)).catch(() => {
+        setIsLoading(false);
+        setHasError(true);
+      });
+    };
+    const onError = () => {
       setIsLoading(false);
       setIsPlaying(false);
-    });
+      setHasError(true);
+    };
+    const onPlaying = () => {
+      setIsLoading(false);
+      setIsPlaying(true);
+      setHasError(false);
+    };
+
+    audio.addEventListener("canplay", onCanPlay);
+    audio.addEventListener("error", onError);
+    audio.addEventListener("playing", onPlaying);
+    audio.src = station.streamUrl;
     audio.load();
 
     return () => {
+      audio.removeEventListener("canplay", onCanPlay);
+      audio.removeEventListener("error", onError);
+      audio.removeEventListener("playing", onPlaying);
       audio.pause();
       audio.src = "";
     };
@@ -49,11 +69,11 @@ export default function RadioPlayer({ station, onClose }: RadioPlayerProps) {
       audio.pause();
       setIsPlaying(false);
     } else {
+      setHasError(false);
       setIsLoading(true);
-      audio.play().then(() => {
-        setIsPlaying(true);
-        setIsLoading(false);
-      }).catch(() => setIsLoading(false));
+      audio.play()
+        .then(() => { setIsPlaying(true); setIsLoading(false); })
+        .catch(() => { setIsLoading(false); setHasError(true); });
     }
   };
 
@@ -68,15 +88,22 @@ export default function RadioPlayer({ station, onClose }: RadioPlayerProps) {
   return (
     <div
       className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-3"
-      style={{
-        background: "linear-gradient(to top, #0d0d1a 80%, transparent)",
-      }}
+      style={{ background: "linear-gradient(to top, #0d0d1a 80%, transparent)" }}
     >
+      {hasError && (
+        <div
+          className="rounded-xl px-4 py-2 mb-2 text-xs text-center"
+          style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", border: "1px solid rgba(239,68,68,0.3)" }}
+        >
+          Не удалось подключиться к станции. Попробуй другую.
+        </div>
+      )}
+
       <div
         className="rounded-2xl px-4 py-3 flex items-center gap-3"
         style={{
           background: "linear-gradient(135deg, #1a1a3e, #12122b)",
-          border: "1px solid rgba(139, 92, 246, 0.3)",
+          border: `1px solid ${hasError ? "rgba(239,68,68,0.3)" : "rgba(139, 92, 246, 0.3)"}`,
           boxShadow: "0 0 30px rgba(139, 92, 246, 0.15)",
         }}
       >
@@ -89,7 +116,9 @@ export default function RadioPlayer({ station, onClose }: RadioPlayerProps) {
 
         <div className="flex-1 min-w-0">
           <p className="text-white font-bold text-sm truncate">{station.name}</p>
-          <p className="text-purple-300 text-xs truncate">{station.genre}</p>
+          <p className="text-purple-300 text-xs truncate">
+            {isLoading ? "Подключение..." : hasError ? "Ошибка" : isPlaying ? "В эфире" : station.genre}
+          </p>
         </div>
 
         <div className="flex items-center gap-1">
@@ -109,7 +138,7 @@ export default function RadioPlayer({ station, onClose }: RadioPlayerProps) {
           onClick={togglePlay}
           disabled={isLoading}
           className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95"
-          style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)" }}
+          style={{ background: hasError ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg, #8b5cf6, #06b6d4)" }}
         >
           {isLoading ? (
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -140,7 +169,7 @@ export default function RadioPlayer({ station, onClose }: RadioPlayerProps) {
               key={i}
               className="w-1 rounded-full"
               style={{
-                height: `${8 + Math.random() * 12}px`,
+                height: `${8 + (i % 3) * 6}px`,
                 background: "linear-gradient(to top, #8b5cf6, #06b6d4)",
                 animation: `equalize ${0.5 + i * 0.15}s ease-in-out infinite alternate`,
               }}
