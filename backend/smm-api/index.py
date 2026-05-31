@@ -3,8 +3,9 @@ import psycopg2
 
 CORS = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, X-Session-Token",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Session-Token, X-Requested-With",
+    "Access-Control-Max-Age": "86400",
 }
 
 def get_conn():

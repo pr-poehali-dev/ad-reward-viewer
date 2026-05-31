@@ -54,14 +54,13 @@ function getToken() {
   return localStorage.getItem("smm_token") || "";
 }
 
-function authHeaders() {
-  return { "Content-Type": "application/json", "X-Session-Token": getToken() };
-}
-
 async function call(url: string, path: string, method = "GET", body?: object) {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const token = getToken();
+  if (token) headers["X-Session-Token"] = token;
   const res = await fetch(`${url}${path}`, {
     method,
-    headers: authHeaders(),
+    headers,
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await res.json();
