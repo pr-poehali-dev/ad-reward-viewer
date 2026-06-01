@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { fetchProfile, fetchHistory, watchAd, withdraw, updateProfile, COINS_TO_RUB } from "@/services/adApi";
 import type { UserProfile, HistoryItem } from "@/services/adApi";
 import Icon from "@/components/ui/icon";
+import YandexAd from "@/components/YandexAd";
+
+const YA_BLOCK_ID = "R-M-19362028-1";
 
 type Screen = "home" | "history" | "withdraw";
 
@@ -165,39 +168,32 @@ export default function AdApp() {
         {screen === "home" && (
           <div className="flex flex-col">
 
-            {/* Hero-баннер */}
-            <div className="relative mx-4 mt-4 rounded-3xl overflow-hidden" style={{ background: ad.bg, minHeight: 200 }}>
-              <div className="absolute inset-0 opacity-10" style={{ background: "radial-gradient(circle at 80% 20%, white, transparent 60%)" }} />
-              <div className="relative p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-lg">{ad.emoji}</div>
-                  <div>
-                    <p className="text-white/60 text-xs">Реклама</p>
-                    <p className="text-white font-bold text-sm">{ad.brand}</p>
-                  </div>
-                  <span className="ml-auto text-white/50 text-xs bg-white/10 px-2 py-0.5 rounded-full">AD</span>
-                </div>
-                <p className="text-white font-black text-2xl leading-tight mb-2">{ad.title}</p>
-                <p className="text-white/70 text-sm leading-relaxed">{ad.desc}</p>
-
-                {/* Прогресс */}
-                {adPlaying && (
-                  <div className="mt-4">
-                    <div className="h-2 rounded-full bg-white/20 overflow-hidden">
-                      <div className="h-full rounded-full bg-white transition-all" style={{ width: `${adProgress}%` }} />
-                    </div>
-                    <p className="text-white/60 text-xs mt-1.5 text-right">{Math.round(adProgress)}%</p>
-                  </div>
-                )}
+            {/* Яндекс реклама */}
+            <div className="mx-4 mt-4 rounded-3xl overflow-hidden" style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", minHeight: 200 }}>
+              <div className="px-1 pt-1">
+                <YandexAd
+                  blockId={YA_BLOCK_ID}
+                  onLoad={() => { setAdPlaying(false); setAdDone(false); }}
+                />
               </div>
+              {/* Прогресс поверх */}
+              {adPlaying && (
+                <div className="px-4 pb-4">
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: "#2a2a2a" }}>
+                    <div className="h-full rounded-full transition-all"
+                      style={{ width: `${adProgress}%`, background: "linear-gradient(90deg, #FFD700, #FFA500)" }} />
+                  </div>
+                  <p className="text-gray-600 text-xs mt-1.5 text-right">{Math.round(adProgress)}%</p>
+                </div>
+              )}
             </div>
 
             {/* Кнопка действия */}
             <div className="px-4 mt-3">
               {!adPlaying && !adDone && (
                 <button onClick={startAd}
-                  className="w-full py-4 rounded-2xl font-black text-lg text-white transition-all active:scale-95"
-                  style={{ background: ad.bg, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
+                  className="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #FFD700, #FFA500)", color: "#1a1000", boxShadow: "0 8px 24px rgba(255,215,0,0.25)" }}>
                   ▶ Смотреть рекламу
                 </button>
               )}
