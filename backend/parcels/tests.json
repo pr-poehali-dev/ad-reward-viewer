@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "List without device_id",
+      "method": "GET",
+      "path": "/list",
+      "expectedStatus": 400,
+      "expectedBody": {"error": "device_id required"},
+      "bodyMatcher": "json_partial"
+    }
+  ]
+}
