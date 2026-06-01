@@ -6,65 +6,71 @@ import Icon from "@/components/ui/icon";
 type Screen = "home" | "history" | "withdraw";
 
 const ADS = [
-  {
-    id: 1,
-    brand: "Яндекс Маркет",
-    title: "Скидки до 70% на электронику",
-    desc: "Только сегодня! Смартфоны, ноутбуки, наушники по минимальным ценам.",
-    emoji: "🛒",
-    color: "#FF6600",
-    bg: "linear-gradient(135deg, #ff6600, #ff9900)",
-  },
-  {
-    id: 2,
-    brand: "Сбер Банк",
-    title: "Кредит за 2 минуты",
-    desc: "До 5 млн рублей без справок. Одобрение онлайн.",
-    emoji: "💳",
-    color: "#21A038",
-    bg: "linear-gradient(135deg, #21a038, #4cbb6e)",
-  },
-  {
-    id: 3,
-    brand: "Авито",
-    title: "Продай ненужное — заработай!",
-    desc: "Миллионы покупателей уже ждут. Размести объявление бесплатно.",
-    emoji: "📦",
-    color: "#00AAFF",
-    bg: "linear-gradient(135deg, #00aaff, #0077cc)",
-  },
-  {
-    id: 4,
-    brand: "Wildberries",
-    title: "Мегараспродажа сезона",
-    desc: "Одежда, обувь, косметика. Бесплатная доставка от 1000 ₽.",
-    emoji: "🛍️",
-    color: "#CB11AB",
-    bg: "linear-gradient(135deg, #cb11ab, #8800aa)",
-  },
-  {
-    id: 5,
-    brand: "Тинькофф",
-    title: "Карта с кешбэком 5%",
-    desc: "Зарабатывай на каждой покупке. Обслуживание 0 ₽.",
-    emoji: "💰",
-    color: "#FFDD2D",
-    bg: "linear-gradient(135deg, #ffdd2d, #ffa800)",
-  },
+  { id: 1, brand: "Яндекс Маркет", title: "Скидки до 70% на электронику", desc: "Только сегодня! Смартфоны, ноутбуки, наушники по минимальным ценам.", emoji: "🛒", bg: "linear-gradient(135deg, #ff6600, #ff9900)" },
+  { id: 2, brand: "Сбер Банк", title: "Кредит за 2 минуты", desc: "До 5 млн рублей без справок. Одобрение онлайн.", emoji: "💳", bg: "linear-gradient(135deg, #21a038, #4cbb6e)" },
+  { id: 3, brand: "Авито", title: "Продай ненужное — заработай!", desc: "Миллионы покупателей уже ждут. Размести объявление бесплатно.", emoji: "📦", bg: "linear-gradient(135deg, #00aaff, #0077cc)" },
+  { id: 4, brand: "Wildberries", title: "Мегараспродажа сезона", desc: "Одежда, обувь, косметика. Бесплатная доставка от 1000 ₽.", emoji: "🛍️", bg: "linear-gradient(135deg, #cb11ab, #8800aa)" },
+  { id: 5, brand: "Тинькофф", title: "Карта с кешбэком 5%", desc: "Зарабатывай на каждой покупке. Обслуживание 0 ₽.", emoji: "💰", bg: "linear-gradient(135deg, #ffdd2d, #ffa800)" },
 ];
 
 function formatDate(str: string) {
-  const d = new Date(str);
-  return d.toLocaleString("ru", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return new Date(str).toLocaleString("ru", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
-
 function coinsToRub(coins: number) {
   return ((coins / COINS_TO_RUB) * 10).toFixed(2);
 }
 
+/* ─── Нижняя навигация ─── */
+function BottomNav({ screen, onNav }: { screen: Screen; onNav: (s: Screen) => void }) {
+  const tabs: { key: Screen; icon: string; label: string }[] = [
+    { key: "home",     icon: "Play",    label: "Реклама" },
+    { key: "history",  icon: "History", label: "История" },
+    { key: "withdraw", icon: "Wallet",  label: "Вывод"   },
+  ];
+  return (
+    <nav
+      className="fixed bottom-0 left-0 right-0 flex z-40"
+      style={{
+        background: "#111",
+        borderTop: "1px solid rgba(255,255,255,0.07)",
+        paddingBottom: "env(safe-area-inset-bottom, 8px)",
+      }}
+    >
+      {tabs.map(t => {
+        const active = screen === t.key;
+        return (
+          <button
+            key={t.key}
+            onClick={() => onNav(t.key)}
+            className="flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-all"
+          >
+            <Icon name={t.icon} size={22} style={{ color: active ? "#FFD700" : "#555" }} />
+            <span className="text-xs font-semibold" style={{ color: active ? "#FFD700" : "#555" }}>{t.label}</span>
+            {active && (
+              <span className="absolute top-0 w-8 h-0.5 rounded-full" style={{ background: "#FFD700" }} />
+            )}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* ─── Скелетон загрузки ─── */
+function Skeleton() {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#FFD700" }}>
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl" style={{ background: "rgba(0,0,0,0.12)" }}>🪙</div>
+        <div className="w-8 h-8 border-4 border-yellow-800 border-t-transparent rounded-full animate-spin" />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Главный компонент ─── */
 export default function AdApp() {
   const [screen, setScreen] = useState<Screen>("home");
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [balance, setBalance] = useState(0);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [adIndex, setAdIndex] = useState(0);
@@ -74,7 +80,6 @@ export default function AdApp() {
   const [earnedPopup, setEarnedPopup] = useState(0);
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(true);
-  // withdraw form
   const [wallet, setWallet] = useState("");
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawError, setWithdrawError] = useState("");
@@ -82,368 +87,312 @@ export default function AdApp() {
 
   useEffect(() => {
     fetchProfile()
-      .then((p) => { setProfile(p); setBalance(p.balance); setWallet(p.frikassa_wallet || ""); })
+      .then((p: UserProfile) => { setBalance(p.balance); setWallet(p.frikassa_wallet || ""); })
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    if (screen === "history") {
-      fetchHistory().then(setHistory);
-    }
+    if (screen === "history") fetchHistory().then(setHistory);
   }, [screen]);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 2500); };
 
-  // Запуск рекламы
   const startAd = () => {
     if (adPlaying) return;
-    setAdPlaying(true);
-    setAdProgress(0);
-    setAdDone(false);
-    let progress = 0;
+    setAdPlaying(true); setAdProgress(0); setAdDone(false);
+    let p = 0;
     timerRef.current = setInterval(() => {
-      progress += 2;
-      setAdProgress(progress);
-      if (progress >= 100) {
-        clearInterval(timerRef.current!);
-        setAdPlaying(false);
-        setAdDone(true);
-      }
-    }, 100); // 5 секунд (100 шагов по 100ms)
+      p += 2; setAdProgress(p);
+      if (p >= 100) { clearInterval(timerRef.current!); setAdPlaying(false); setAdDone(true); }
+    }, 100);
   };
 
-  // Начислить монеты
   const claimReward = async () => {
     setAdDone(false);
     try {
       const res = await watchAd();
       setBalance(res.balance);
       setEarnedPopup(res.earned);
-      setAdIndex((i) => (i + 1) % ADS.length);
+      setAdIndex(i => (i + 1) % ADS.length);
       setAdProgress(0);
-      setTimeout(() => setEarnedPopup(0), 2000);
-    } catch {
-      showToast("Ошибка начисления");
-    }
+      setTimeout(() => setEarnedPopup(0), 1800);
+    } catch { showToast("Ошибка начисления"); }
   };
 
-  // Вывод
   const handleWithdraw = async () => {
     setWithdrawError("");
     if (!wallet.trim()) { setWithdrawError("Введи номер кошелька FreeKassa"); return; }
-    const minCoins = COINS_TO_RUB;
-    if (balance < minCoins) { setWithdrawError(`Нужно минимум ${minCoins.toLocaleString()} монет (10 ₽)`); return; }
+    if (balance < COINS_TO_RUB) { setWithdrawError(`Нужно минимум ${COINS_TO_RUB.toLocaleString()} монет`); return; }
     setWithdrawing(true);
     try {
       await updateProfile(wallet);
-      const rubAmount = Math.floor(balance / COINS_TO_RUB) * 10;
-      await withdraw("frikassa", wallet, rubAmount);
-      showToast(`✅ Заявка на вывод ${rubAmount} ₽ отправлена!`);
+      const rub = Math.floor(balance / COINS_TO_RUB) * 10;
+      await withdraw("frikassa", wallet, rub);
+      showToast(`✅ Заявка на ${rub} ₽ отправлена!`);
       const p = await fetchProfile();
       setBalance(p.balance);
       setScreen("home");
     } catch (e: unknown) {
       setWithdrawError(e instanceof Error ? e.message : "Ошибка вывода");
-    } finally {
-      setWithdrawing(false);
-    }
+    } finally { setWithdrawing(false); }
   };
 
   const ad = ADS[adIndex];
   const rubBalance = coinsToRub(balance);
+  const pct = Math.min((balance / COINS_TO_RUB) * 100, 100);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#FFD700" }}>
-        <div className="w-10 h-10 border-4 border-yellow-600 border-t-transparent rounded-full animate-spin" />
+  if (loading) return <Skeleton />;
+
+  return (
+    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: "#0d0d0d", color: "white" }}>
+
+      {/* ══ СТАТУС-БАР (имитация) ══ */}
+      <div
+        className="flex-shrink-0 flex items-center justify-between px-5 text-xs font-semibold"
+        style={{ height: "calc(44px + env(safe-area-inset-top, 0px))", paddingTop: "env(safe-area-inset-top, 0px)", background: "#FFD700", color: "#7a5200" }}
+      >
+        <span className="text-base font-black">CoinAds</span>
+        <div className="flex items-center gap-2">
+          <span className="text-lg font-black">{balance.toLocaleString()} 🪙</span>
+          <span className="opacity-60">≈ {rubBalance} ₽</span>
+        </div>
       </div>
-    );
-  }
 
-  // ——— ЭКРАН ИСТОРИИ ———
-  if (screen === "history") {
-    return (
-      <div className="min-h-screen" style={{ background: "#1a1a1a", color: "white" }}>
-        <div className="px-4 pt-10 pb-4 flex items-center gap-3" style={{ background: "#FFD700" }}>
-          <button onClick={() => setScreen("home")} className="text-yellow-900">
-            <Icon name="ArrowLeft" size={22} />
-          </button>
-          <h1 className="text-xl font-black text-yellow-900 flex-1">История</h1>
-        </div>
+      {/* ══ КОНТЕНТ (скроллится) ══ */}
+      <div className="flex-1 overflow-y-auto pb-24" style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
 
-        {/* Итого */}
-        <div className="flex gap-3 px-4 py-4">
-          <div className="flex-1 rounded-2xl p-4 text-center" style={{ background: "#2a2a2a" }}>
-            <p className="text-yellow-400 text-xs mb-1">Начислено монет</p>
-            <p className="text-white font-black text-xl">
-              {history.filter(h => h.type === "earn").reduce((s, h) => s + h.coins, 0).toLocaleString()}
-            </p>
-          </div>
-          <div className="flex-1 rounded-2xl p-4 text-center" style={{ background: "#2a2a2a" }}>
-            <p className="text-green-400 text-xs mb-1">Выведено ₽</p>
-            <p className="text-white font-black text-xl">
-              {history.filter(h => h.type === "withdraw" && h.status === "success").reduce((s, h) => s + h.coins, 0)} ₽
-            </p>
-          </div>
-        </div>
+        {/* ─── ГЛАВНЫЙ ЭКРАН ─── */}
+        {screen === "home" && (
+          <div className="flex flex-col">
 
-        <div className="px-4 flex flex-col gap-2 pb-10">
-          {history.length === 0 && (
-            <div className="text-center py-16 text-gray-500">
-              <div className="text-5xl mb-3">📋</div>
-              <p>История пуста. Смотри рекламу!</p>
-            </div>
-          )}
-          {history.map((h, i) => (
-            <div key={i} className="flex items-center justify-between rounded-2xl px-4 py-3" style={{ background: "#2a2a2a" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg"
-                  style={{ background: h.type === "earn" ? "rgba(255,215,0,0.15)" : "rgba(16,185,129,0.15)" }}>
-                  {h.type === "earn" ? "🪙" : "💸"}
+            {/* Hero-баннер */}
+            <div className="relative mx-4 mt-4 rounded-3xl overflow-hidden" style={{ background: ad.bg, minHeight: 200 }}>
+              <div className="absolute inset-0 opacity-10" style={{ background: "radial-gradient(circle at 80% 20%, white, transparent 60%)" }} />
+              <div className="relative p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-lg">{ad.emoji}</div>
+                  <div>
+                    <p className="text-white/60 text-xs">Реклама</p>
+                    <p className="text-white font-bold text-sm">{ad.brand}</p>
+                  </div>
+                  <span className="ml-auto text-white/50 text-xs bg-white/10 px-2 py-0.5 rounded-full">AD</span>
                 </div>
-                <div>
-                  <p className="text-white text-sm font-semibold">
-                    {h.type === "earn" ? "Просмотр рекламы" : `Вывод (${h.system || ""})`}
-                  </p>
-                  <p className="text-gray-500 text-xs">{formatDate(h.created_at)}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className={`font-bold text-sm ${h.type === "earn" ? "text-yellow-400" : "text-green-400"}`}>
-                  {h.type === "earn" ? `+${h.coins.toLocaleString()} 🪙` : `-${h.coins} ₽`}
-                </p>
-                {h.status && (
-                  <p className="text-xs" style={{ color: h.status === "success" ? "#10b981" : h.status === "failed" ? "#ef4444" : "#f59e0b" }}>
-                    {h.status === "success" ? "Выплачено" : h.status === "failed" ? "Ошибка" : "В обработке"}
-                  </p>
+                <p className="text-white font-black text-2xl leading-tight mb-2">{ad.title}</p>
+                <p className="text-white/70 text-sm leading-relaxed">{ad.desc}</p>
+
+                {/* Прогресс */}
+                {adPlaying && (
+                  <div className="mt-4">
+                    <div className="h-2 rounded-full bg-white/20 overflow-hidden">
+                      <div className="h-full rounded-full bg-white transition-all" style={{ width: `${adProgress}%` }} />
+                    </div>
+                    <p className="text-white/60 text-xs mt-1.5 text-right">{Math.round(adProgress)}%</p>
+                  </div>
                 )}
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
-  // ——— ЭКРАН ВЫВОДА ———
-  if (screen === "withdraw") {
-    const canWithdraw = balance >= COINS_TO_RUB;
-    const rubAmount = Math.floor(balance / COINS_TO_RUB) * 10;
-
-    return (
-      <div className="min-h-screen" style={{ background: "#1a1a1a", color: "white" }}>
-        <div className="px-4 pt-10 pb-4 flex items-center gap-3" style={{ background: "#FFD700" }}>
-          <button onClick={() => setScreen("home")} className="text-yellow-900">
-            <Icon name="ArrowLeft" size={22} />
-          </button>
-          <h1 className="text-xl font-black text-yellow-900 flex-1">Вывод средств</h1>
-        </div>
-
-        <div className="px-4 py-5">
-          {/* Баланс */}
-          <div className="rounded-2xl p-5 text-center mb-5" style={{ background: "linear-gradient(135deg, #2a2000, #3d3000)", border: "1px solid rgba(255,215,0,0.3)" }}>
-            <p className="text-yellow-400 text-sm mb-1">Твой баланс</p>
-            <p className="text-4xl font-black text-yellow-300">{balance.toLocaleString()} 🪙</p>
-            <p className="text-yellow-600 text-sm mt-1">≈ {rubBalance} ₽</p>
-          </div>
-
-          {/* Курс */}
-          <div className="rounded-2xl p-4 mb-5 flex items-center gap-3" style={{ background: "#2a2a2a" }}>
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{ background: "rgba(255,215,0,0.1)" }}>💱</div>
-            <div>
-              <p className="text-white font-semibold text-sm">Курс обмена</p>
-              <p className="text-gray-400 text-xs">12 000 монет = 10 рублей</p>
+            {/* Кнопка действия */}
+            <div className="px-4 mt-3">
+              {!adPlaying && !adDone && (
+                <button onClick={startAd}
+                  className="w-full py-4 rounded-2xl font-black text-lg text-white transition-all active:scale-95"
+                  style={{ background: ad.bg, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
+                  ▶ Смотреть рекламу
+                </button>
+              )}
+              {adPlaying && (
+                <div className="w-full py-4 rounded-2xl text-center font-semibold text-gray-500"
+                  style={{ background: "#1a1a1a", border: "1px solid #2a2a2a" }}>
+                  ⏳ Загрузка рекламы...
+                </div>
+              )}
+              {adDone && (
+                <button onClick={claimReward}
+                  className="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #FFD700, #FFA500)", color: "#1a1000", boxShadow: "0 8px 24px rgba(255,215,0,0.3)" }}>
+                  🪙 Забрать +100 монет
+                </button>
+              )}
             </div>
-          </div>
 
-          {/* Минимум */}
-          <div className={`rounded-2xl p-4 mb-5 ${canWithdraw ? "" : "opacity-70"}`}
-            style={{ background: canWithdraw ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${canWithdraw ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}` }}>
-            <p className="text-sm font-semibold" style={{ color: canWithdraw ? "#10b981" : "#ef4444" }}>
-              {canWithdraw ? `✅ Доступно к выводу: ${rubAmount} ₽` : `❌ Нужно ещё ${(COINS_TO_RUB - balance).toLocaleString()} монет`}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">Минимум для вывода: {COINS_TO_RUB.toLocaleString()} монет (10 ₽)</p>
-          </div>
-
-          {/* FreeKassa */}
-          <div className="rounded-2xl p-4 mb-2" style={{ background: "#2a2a2a", border: "1px solid rgba(255,255,255,0.07)" }}>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl">💳</span>
-              <p className="text-white font-semibold text-sm">FreeKassa</p>
+            {/* Карточки статистики */}
+            <div className="grid grid-cols-2 gap-3 px-4 mt-4">
+              <div className="rounded-2xl p-4" style={{ background: "#1a1a1a", border: "1px solid #222" }}>
+                <p className="text-gray-500 text-xs mb-1">За просмотр</p>
+                <p className="text-yellow-400 font-black text-2xl">+100 🪙</p>
+              </div>
+              <div className="rounded-2xl p-4" style={{ background: "#1a1a1a", border: "1px solid #222" }}>
+                <p className="text-gray-500 text-xs mb-1">Курс</p>
+                <p className="text-green-400 font-black text-xl">12k 🪙</p>
+                <p className="text-gray-500 text-xs">= 10 ₽</p>
+              </div>
             </div>
-            <p className="text-gray-400 text-xs mb-2">Номер кошелька / карты</p>
-            <input
-              value={wallet}
-              onChange={e => setWallet(e.target.value)}
-              placeholder="Введи номер кошелька"
-              className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
-              style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}
-            />
-          </div>
 
-          {withdrawError && <p className="text-red-400 text-xs mb-3 px-1">{withdrawError}</p>}
-
-          <button
-            onClick={handleWithdraw}
-            disabled={withdrawing || !canWithdraw}
-            className="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-95 mt-3"
-            style={{
-              background: canWithdraw ? "linear-gradient(135deg, #FFD700, #FFA500)" : "#333",
-              color: canWithdraw ? "#1a1000" : "#666",
-            }}
-          >
-            {withdrawing ? "Отправка заявки..." : `Вывести ${rubAmount} ₽`}
-          </button>
-        </div>
-
-        {toast && (
-          <div className="fixed bottom-6 left-4 right-4 text-center py-3 rounded-2xl font-semibold text-white z-50"
-            style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
-            {toast}
+            {/* Прогресс до вывода */}
+            <div className="mx-4 mt-3 rounded-2xl p-4" style={{ background: "#1a1a1a", border: "1px solid #222" }}>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-gray-400 text-sm font-semibold">До вывода</p>
+                <p className="text-yellow-400 text-sm font-bold">{Math.min(balance, COINS_TO_RUB).toLocaleString()} / {COINS_TO_RUB.toLocaleString()}</p>
+              </div>
+              <div className="h-3 rounded-full overflow-hidden" style={{ background: "#2a2a2a" }}>
+                <div className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, background: "linear-gradient(90deg, #FFD700, #FFA500)" }} />
+              </div>
+              <p className="text-xs mt-2 text-right" style={{ color: balance >= COINS_TO_RUB ? "#10b981" : "#666" }}>
+                {balance >= COINS_TO_RUB ? "✅ Можно вывести!" : `Ещё ${(COINS_TO_RUB - balance).toLocaleString()} монет`}
+              </p>
+            </div>
           </div>
         )}
-      </div>
-    );
-  }
 
-  // ——— ГЛАВНЫЙ ЭКРАН ———
-  return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#FFD700" }}>
-      {/* Шапка */}
-      <div className="flex items-center justify-between px-5 pt-12 pb-4">
-        {/* Баланс слева */}
-        <div className="rounded-2xl px-4 py-2.5" style={{ background: "rgba(0,0,0,0.12)" }}>
-          <p className="text-yellow-900 text-xs font-medium">Баланс</p>
-          <p className="text-yellow-900 font-black text-lg leading-tight">{balance.toLocaleString()} 🪙</p>
-          <p className="text-yellow-800 text-xs">≈ {rubBalance} ₽</p>
-        </div>
-
-        {/* Кнопки справа */}
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={() => setScreen("history")}
-            className="flex items-center gap-2 rounded-2xl px-4 py-2.5 font-semibold text-sm transition-all active:scale-95"
-            style={{ background: "rgba(0,0,0,0.12)", color: "#7a5200" }}
-          >
-            <Icon name="History" size={16} />
-            История
-          </button>
-          <button
-            onClick={() => setScreen("withdraw")}
-            className="flex items-center gap-2 rounded-2xl px-4 py-2.5 font-semibold text-sm transition-all active:scale-95"
-            style={{ background: "rgba(0,0,0,0.15)", color: "#7a5200" }}
-          >
-            <Icon name="Wallet" size={16} />
-            Вывести
-          </button>
-        </div>
-      </div>
-
-      {/* Заголовок */}
-      <div className="px-5 mb-4">
-        <h1 className="text-2xl font-black text-yellow-900">Смотри рекламу</h1>
-        <p className="text-yellow-700 text-sm">и зарабатывай монеты 🪙</p>
-      </div>
-
-      {/* Блок рекламы */}
-      <div className="flex-1 flex flex-col px-5 gap-4">
-        <div className="rounded-3xl overflow-hidden shadow-2xl" style={{ background: "#1a1a1a" }}>
-          {/* Шапка рекламы */}
-          <div className="px-4 pt-4 pb-3 flex items-center gap-2" style={{ background: ad.bg }}>
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-2xl">{ad.emoji}</div>
-            <div>
-              <p className="text-white/70 text-xs">Реклама</p>
-              <p className="text-white font-black text-base">{ad.brand}</p>
+        {/* ─── ИСТОРИЯ ─── */}
+        {screen === "history" && (
+          <div>
+            {/* Статкарточки */}
+            <div className="grid grid-cols-2 gap-3 px-4 pt-4">
+              <div className="rounded-2xl p-4 text-center" style={{ background: "#1a1a1a", border: "1px solid #222" }}>
+                <p className="text-yellow-400 text-xs mb-1">Заработано</p>
+                <p className="text-white font-black text-xl">
+                  {history.filter(h => h.type === "earn").reduce((s, h) => s + h.coins, 0).toLocaleString()} 🪙
+                </p>
+              </div>
+              <div className="rounded-2xl p-4 text-center" style={{ background: "#1a1a1a", border: "1px solid #222" }}>
+                <p className="text-green-400 text-xs mb-1">Выведено</p>
+                <p className="text-white font-black text-xl">
+                  {history.filter(h => h.type === "withdraw" && h.status === "success").reduce((s, h) => s + h.coins, 0)} ₽
+                </p>
+              </div>
             </div>
-            <div className="ml-auto text-white/60 text-xs bg-white/10 px-2 py-1 rounded-full">Реклама</div>
-          </div>
 
-          {/* Тело рекламы */}
-          <div className="px-5 py-5">
-            <p className="text-white font-black text-xl mb-2">{ad.title}</p>
-            <p className="text-gray-400 text-sm leading-relaxed">{ad.desc}</p>
-          </div>
-
-          {/* Прогресс и кнопка */}
-          <div className="px-5 pb-5">
-            {adPlaying && (
-              <div className="mb-4">
-                <div className="flex justify-between text-xs text-gray-500 mb-1.5">
-                  <span>Загрузка рекламы...</span>
-                  <span>{Math.round(adProgress)}%</span>
+            {/* Список */}
+            <div className="px-4 mt-4 flex flex-col gap-2">
+              {history.length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="text-5xl mb-3">📋</div>
+                  <p className="text-gray-500">История пуста — смотри рекламу!</p>
                 </div>
-                <div className="h-2 rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{ width: `${adProgress}%`, background: ad.bg }}
-                  />
+              ) : history.map((h, i) => (
+                <div key={i} className="flex items-center gap-3 rounded-2xl px-4 py-3"
+                  style={{ background: "#1a1a1a", border: "1px solid #222" }}>
+                  <div className="w-10 h-10 flex-shrink-0 rounded-2xl flex items-center justify-center text-xl"
+                    style={{ background: h.type === "earn" ? "rgba(255,215,0,0.1)" : "rgba(16,185,129,0.1)" }}>
+                    {h.type === "earn" ? "🪙" : "💸"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-semibold truncate">
+                      {h.type === "earn" ? "Просмотр рекламы" : `Вывод (${h.system || "frikassa"})`}
+                    </p>
+                    <p className="text-gray-600 text-xs">{formatDate(h.created_at)}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="font-bold text-sm" style={{ color: h.type === "earn" ? "#FFD700" : "#10b981" }}>
+                      {h.type === "earn" ? `+${h.coins.toLocaleString()} 🪙` : `-${h.coins} ₽`}
+                    </p>
+                    {h.status && (
+                      <p className="text-xs" style={{ color: h.status === "success" ? "#10b981" : h.status === "failed" ? "#ef4444" : "#f59e0b" }}>
+                        {h.status === "success" ? "Выплачено" : h.status === "failed" ? "Ошибка" : "В обработке"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ─── ВЫВОД ─── */}
+        {screen === "withdraw" && (() => {
+          const canWithdraw = balance >= COINS_TO_RUB;
+          const rubAmount = Math.floor(balance / COINS_TO_RUB) * 10;
+          return (
+            <div className="px-4 pt-4">
+              {/* Баланс-карточка */}
+              <div className="rounded-3xl p-6 text-center mb-4"
+                style={{ background: "linear-gradient(135deg, #2a1f00, #1a1200)", border: "1px solid rgba(255,215,0,0.2)" }}>
+                <p className="text-yellow-600 text-sm mb-1">Твой баланс</p>
+                <p className="text-5xl font-black text-yellow-400">{balance.toLocaleString()}</p>
+                <p className="text-yellow-600 text-2xl mt-1">🪙</p>
+                <p className="text-yellow-700 text-sm mt-2">≈ {rubBalance} ₽</p>
+              </div>
+
+              {/* Статус вывода */}
+              <div className="rounded-2xl p-4 mb-4 flex items-center gap-3"
+                style={{ background: canWithdraw ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${canWithdraw ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.2)"}` }}>
+                <span className="text-2xl">{canWithdraw ? "✅" : "⏳"}</span>
+                <div>
+                  <p className="font-semibold text-sm" style={{ color: canWithdraw ? "#10b981" : "#ef4444" }}>
+                    {canWithdraw ? `Доступно к выводу: ${rubAmount} ₽` : "Недостаточно монет"}
+                  </p>
+                  <p className="text-gray-600 text-xs mt-0.5">
+                    {canWithdraw ? "Нажми кнопку ниже для вывода" : `Нужно ещё ${(COINS_TO_RUB - balance).toLocaleString()} монет`}
+                  </p>
                 </div>
               </div>
-            )}
 
-            {!adPlaying && !adDone && (
+              {/* Курс */}
+              <div className="rounded-2xl px-4 py-3 mb-4 flex items-center justify-between"
+                style={{ background: "#1a1a1a", border: "1px solid #222" }}>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">💱</span>
+                  <p className="text-gray-400 text-sm">Курс обмена</p>
+                </div>
+                <p className="text-white font-bold text-sm">12 000 🪙 = 10 ₽</p>
+              </div>
+
+              {/* Кошелёк */}
+              <div className="rounded-2xl p-4 mb-2" style={{ background: "#1a1a1a", border: "1px solid #222" }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xl">💳</span>
+                  <p className="text-white font-semibold text-sm">FreeKassa — кошелёк</p>
+                </div>
+                <input
+                  value={wallet}
+                  onChange={e => setWallet(e.target.value)}
+                  placeholder="Номер кошелька / карты"
+                  className="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+                  style={{ background: "#111", border: "1px solid #2a2a2a" }}
+                />
+              </div>
+
+              {withdrawError && (
+                <p className="text-red-400 text-xs mb-3 px-1">{withdrawError}</p>
+              )}
+
               <button
-                onClick={startAd}
-                className="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-95"
-                style={{ background: ad.bg, color: "white" }}
+                onClick={handleWithdraw}
+                disabled={withdrawing || !canWithdraw}
+                className="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-95 mt-2"
+                style={{
+                  background: canWithdraw ? "linear-gradient(135deg, #FFD700, #FFA500)" : "#1e1e1e",
+                  color: canWithdraw ? "#1a1000" : "#444",
+                  border: canWithdraw ? "none" : "1px solid #2a2a2a",
+                }}
               >
-                ▶ Смотреть рекламу
+                {withdrawing ? "Отправка..." : canWithdraw ? `Вывести ${rubAmount} ₽` : "Недостаточно монет"}
               </button>
-            )}
-
-            {adDone && (
-              <button
-                onClick={claimReward}
-                className="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-95 animate-pulse"
-                style={{ background: "linear-gradient(135deg, #FFD700, #FFA500)", color: "#1a1000" }}
-              >
-                🪙 Получить +100 монет
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Подсказка */}
-        <div className="rounded-2xl px-4 py-3 flex items-center gap-3" style={{ background: "rgba(0,0,0,0.1)" }}>
-          <span className="text-2xl">💡</span>
-          <p className="text-yellow-900 text-xs">
-            За каждую рекламу — <strong>100 монет</strong>. Смотри больше — выводи деньги!
-          </p>
-        </div>
-
-        {/* Прогресс до вывода */}
-        <div className="rounded-2xl px-4 py-3" style={{ background: "rgba(0,0,0,0.1)" }}>
-          <div className="flex justify-between text-xs text-yellow-900 mb-1.5">
-            <span>До минимального вывода</span>
-            <span>{Math.min(balance, COINS_TO_RUB).toLocaleString()} / {COINS_TO_RUB.toLocaleString()} 🪙</span>
-          </div>
-          <div className="h-2.5 rounded-full" style={{ background: "rgba(0,0,0,0.15)" }}>
-            <div
-              className="h-full rounded-full transition-all"
-              style={{ width: `${Math.min((balance / COINS_TO_RUB) * 100, 100)}%`, background: "linear-gradient(90deg, #b45309, #92400e)" }}
-            />
-          </div>
-          <p className="text-yellow-800 text-xs mt-1.5 text-right">
-            {balance >= COINS_TO_RUB ? "✅ Можно вывести!" : `Ещё ${(COINS_TO_RUB - balance).toLocaleString()} монет`}
-          </p>
-        </div>
+            </div>
+          );
+        })()}
       </div>
 
-      <div className="h-8" />
+      {/* ══ НИЖНЯЯ НАВИГАЦИЯ ══ */}
+      <BottomNav screen={screen} onNav={setScreen} />
 
-      {/* Попап +монеты */}
+      {/* ══ ПОПАП +МОНЕТЫ ══ */}
       {earnedPopup > 0 && (
-        <div className="fixed top-1/3 left-0 right-0 flex justify-center z-50 pointer-events-none">
-          <div className="px-8 py-4 rounded-3xl text-3xl font-black animate-bounce shadow-2xl"
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="px-10 py-5 rounded-3xl font-black text-4xl animate-bounce shadow-2xl"
             style={{ background: "linear-gradient(135deg, #FFD700, #FFA500)", color: "#1a1000" }}>
             +{earnedPopup} 🪙
           </div>
         </div>
       )}
 
+      {/* ══ ТОСТ ══ */}
       {toast && (
-        <div className="fixed bottom-6 left-4 right-4 text-center py-3 rounded-2xl font-semibold text-white z-50"
-          style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
+        <div className="fixed bottom-24 left-4 right-4 text-center py-3 rounded-2xl font-semibold text-white z-50 text-sm"
+          style={{ background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
           {toast}
         </div>
       )}
