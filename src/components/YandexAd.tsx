@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 interface Props {
   blockId: string;
   suffix?: string;
-  onLoad?: () => void;
 }
 
 declare global {
@@ -12,43 +11,32 @@ declare global {
     Ya?: {
       Context?: {
         AdvManager?: {
-          render: (params: { blockId: string; renderTo: string; onRender?: () => void }) => void;
+          render: (params: object) => void;
         };
       };
     };
   }
 }
 
-export default function YandexAd({ blockId, suffix = "1", onLoad }: Props) {
-  const containerId = `yandex-ad-${blockId}-${suffix}`;
+export default function YandexAd({ blockId, suffix = "1" }: Props) {
+  const divId = `yandex_rtb_${blockId}_${suffix}`;
   const rendered = useRef(false);
 
   useEffect(() => {
     if (rendered.current) return;
     rendered.current = true;
 
-    const render = () => {
-      window.Ya?.Context?.AdvManager?.render({
-        blockId,
-        renderTo: containerId,
-        onRender: onLoad,
-      });
+    const doRender = () => {
+      window.Ya?.Context?.AdvManager?.render({ blockId, renderTo: divId });
     };
 
-    window.yaContextCb = window.yaContextCb || [];
-    window.yaContextCb.push(render);
-
-    // Если скрипт уже загружен — рендерим сразу
     if (window.Ya?.Context?.AdvManager) {
-      render();
+      doRender();
+    } else {
+      window.yaContextCb = window.yaContextCb || [];
+      window.yaContextCb.push(doRender);
     }
-  }, [blockId, containerId, onLoad]);
+  }, [blockId, divId]);
 
-  return (
-    <div
-      id={containerId}
-      className="w-full"
-      style={{ minHeight: 100 }}
-    />
-  );
+  return <div id={divId} style={{ width: "100%", minHeight: 90 }} />;
 }
