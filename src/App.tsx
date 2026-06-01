@@ -1,5 +1,5 @@
-import ParcelsApp from "@/pages/ParcelsApp";
+import AdApp from "@/pages/AdApp";
 
 export default function App() {
-  return <ParcelsApp />;
+  return <AdApp />;
 }

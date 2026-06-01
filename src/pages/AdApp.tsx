@@ -4,7 +4,7 @@ import type { UserProfile, HistoryItem } from "@/services/adApi";
 import Icon from "@/components/ui/icon";
 import YandexAd from "@/components/YandexAd";
 
-const YA_BLOCK_ID = "R-A-19368143-1";
+const YA_BLOCK_ID = "R-M-19362028-1";
 
 type Screen = "home" | "history" | "withdraw";
 
