@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 interface Props {
   blockId: string;
+  type?: string;
   suffix?: string;
 }
 
@@ -18,8 +19,8 @@ declare global {
   }
 }
 
-export default function YandexAd({ blockId, suffix = "1" }: Props) {
-  const divId = `yandex_rtb_${blockId}_${suffix}`;
+export default function YandexAd({ blockId, type = "topAd", suffix = "1" }: Props) {
+  const divId = `yandex_rtb_${blockId.replace(/-/g, "_")}_${suffix}`;
   const rendered = useRef(false);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export default function YandexAd({ blockId, suffix = "1" }: Props) {
     rendered.current = true;
 
     const doRender = () => {
-      window.Ya?.Context?.AdvManager?.render({ blockId, renderTo: divId });
+      window.Ya?.Context?.AdvManager?.render({ blockId, type, renderTo: divId });
     };
 
     if (window.Ya?.Context?.AdvManager) {
