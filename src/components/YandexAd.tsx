@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 interface Props {
   blockId: string;
+  suffix?: string;
   onLoad?: () => void;
 }
 
@@ -18,8 +19,8 @@ declare global {
   }
 }
 
-export default function YandexAd({ blockId, onLoad }: Props) {
-  const containerId = `yandex-ad-${blockId}`;
+export default function YandexAd({ blockId, suffix = "1", onLoad }: Props) {
+  const containerId = `yandex-ad-${blockId}-${suffix}`;
   const rendered = useRef(false);
 
   useEffect(() => {

@@ -239,6 +239,13 @@ export default function AdApp() {
                 {balance >= COINS_TO_RUB ? "✅ Можно вывести!" : `Ещё ${(COINS_TO_RUB - balance).toLocaleString()} монет`}
               </p>
             </div>
+
+            {/* Второй рекламный блок */}
+            <div className="mx-4 mt-3 mb-2 rounded-3xl overflow-hidden" style={{ background: "#1a1a1a", border: "1px solid #2a2a2a" }}>
+              <p className="text-gray-600 text-xs px-4 pt-3 pb-1">Реклама</p>
+              <YandexAd blockId={YA_BLOCK_ID} suffix="2" />
+            </div>
+
           </div>
         )}
 
